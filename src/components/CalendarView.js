@@ -298,7 +298,13 @@ const CalendarView = ({ events }) => {
             mb: 2,
             '& .MuiToggleButton-root': {
               flex: { xs: '1 1 45%', sm: '0 0 auto' },
-              minWidth: { xs: '45%', sm: 100 }
+              minWidth: { xs: '45%', sm: 100 },
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 1,
+            },
+            '& .MuiToggleButton-root.Mui-selected': {
+              borderColor: 'primary.main'
             }
           }}
         >
