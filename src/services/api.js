@@ -7,6 +7,8 @@ export const DEFAULT_TIMETABLE_URLS = Object.freeze([
   }
 ]);
 
+const CALENDAR_PROFILE_ID_KEY = 'calendarProfileId';
+
 const resolveApiBaseUrl = () => {
   const fromEnv = process.env.REACT_APP_API_BASE_URL;
   if (fromEnv && fromEnv.trim()) {
@@ -51,6 +53,42 @@ export const getStoredTimetableUrls = () => {
     return cloneDefaultTimetables();
   }
 };
+
+const generateProfileId = () => {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+  } catch {
+    // Ignore failures and fall through to fallback
+  }
+
+  return `cal-${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
+};
+
+export const getCalendarProfileId = () => {
+  try {
+    if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') {
+      return 'anonymous';
+    }
+
+    let profileId = window.localStorage.getItem(CALENDAR_PROFILE_ID_KEY);
+    if (!profileId) {
+      profileId = generateProfileId();
+      window.localStorage.setItem(CALENDAR_PROFILE_ID_KEY, profileId);
+    }
+
+    return profileId;
+  } catch (error) {
+    console.error('Failed to resolve calendar profile ID:', error);
+    return 'anonymous';
+  }
+};
+
+export const getCalendarProfilePayload = () => ({
+  profileId: getCalendarProfileId(),
+  timetables: getStoredTimetableUrls()
+});
 
 const fetchProgramSchedule = async (url, programName) => {
   try {

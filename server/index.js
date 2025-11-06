@@ -182,9 +182,30 @@ app.get('/calendar.ics', async (req, res) => {
       return res.status(400).send('No calendar URLs provided');
     }
 
-    const urls = JSON.parse(decodeURIComponent(urlsParam));
+    let parsedConfig;
+    try {
+      parsedConfig = JSON.parse(decodeURIComponent(urlsParam));
+    } catch (parseError) {
+      console.error('Failed to parse calendar configuration:', parseError);
+      return res.status(400).send('Invalid calendar configuration');
+    }
+
+    const timetableConfigs = Array.isArray(parsedConfig)
+      ? parsedConfig
+      : Array.isArray(parsedConfig?.timetables)
+        ? parsedConfig.timetables
+        : null;
+
+    if (!Array.isArray(timetableConfigs) || timetableConfigs.length === 0) {
+      return res.status(400).send('No valid timetables provided');
+    }
+
+    if (parsedConfig?.profileId) {
+      console.log(`[Calendar] Generating ICS for profile ${parsedConfig.profileId}`);
+    }
+
     const allSchedules = await Promise.all(
-      urls.map(timetable => fetchProgramSchedule(timetable.url, timetable.name))
+      timetableConfigs.map(timetable => fetchProgramSchedule(timetable.url, timetable.name))
     );
 
     const allEvents = allSchedules.flat();
