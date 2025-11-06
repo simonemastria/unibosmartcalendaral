@@ -21,6 +21,12 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
+const calendarMinHeight = {
+  xs: 540,
+  sm: 720,
+  md: 800
+};
+
 const CalendarView = ({ events }) => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [view, setView] = useState(Views.MONTH);
@@ -120,6 +126,7 @@ const CalendarView = ({ events }) => {
   // Custom styles for the calendar
   const calendarStyle = {
     height: '100%',
+    minHeight: calendarMinHeight,
     '& .rbc-time-view': {
       border: '1px solid #ddd',
     },
@@ -156,15 +163,23 @@ const CalendarView = ({ events }) => {
   };
 
   return (
-    <Box sx={{ minHeight: '800px', height: 'auto' }}>
-      <Paper elevation={2} sx={{ minHeight: '800px', height: 'auto', p: 2 }}>
+    <Box sx={{ minHeight: calendarMinHeight, height: 'auto' }}>
+      <Paper 
+        elevation={2} 
+        sx={{ 
+          minHeight: calendarMinHeight, 
+          height: 'auto', 
+          p: { xs: 1.5, sm: 2 }, 
+          overflow: 'hidden' 
+        }}
+      >
         <Box sx={calendarStyle}>
           <Calendar
             localizer={localizer}
             events={calendarEvents}
             startAccessor="start"
             endAccessor="end"
-            style={{ height: 'auto', minHeight: '800px' }}
+            style={{ height: '100%' }}
             views={{
               month: true,
               week: true,

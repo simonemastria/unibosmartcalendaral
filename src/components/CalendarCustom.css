@@ -265,6 +265,9 @@
 @media (max-width: 768px) {
   .rbc-toolbar {
     flex-direction: column;
+    align-items: stretch !important;
+    padding: 12px !important;
+    gap: 8px !important;
   }
   
   .rbc-toolbar-label {
@@ -280,6 +283,42 @@
   .rbc-header {
     font-size: 0.85rem !important;
     padding: 8px 4px !important;
+    white-space: nowrap !important;
+  }
+
+  .rbc-month-view {
+    min-height: 560px !important;
+  }
+
+  .rbc-month-row {
+    min-height: 110px !important;
+  }
+
+  .rbc-time-slot {
+    min-height: 35px !important;
+  }
+
+  .rbc-timeslot-group {
+    min-height: 70px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .rbc-toolbar {
+    text-align: left !important;
+  }
+
+  .rbc-toolbar button {
+    width: 100% !important;
+  }
+
+  .rbc-toolbar .rbc-btn-group {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .rbc-toolbar .rbc-btn-group button {
+    flex: 1 1 auto !important;
   }
 }
 

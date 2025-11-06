@@ -175,27 +175,45 @@ const ScheduleContainer = ({ events }) => {
         borderBottom: 1, 
         borderColor: 'divider',
         display: 'flex',
-        alignItems: 'center'
+        flexDirection: { xs: 'column', md: 'row' },
+        alignItems: { xs: 'stretch', md: 'center' },
+        gap: { xs: 1.5, md: 0 },
+        pb: { xs: 1, md: 0 }
       }}>
         <Tabs 
           value={currentTab} 
           onChange={handleTabChange} 
           aria-label="schedule view tabs"
-          sx={{ flex: 1 }}
-          centered
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+          sx={{ 
+            flexGrow: 1,
+            width: { xs: '100%', md: 'auto' },
+            minHeight: { xs: 48, sm: 52 }
+          }}
         >
           <Tab 
             icon={<CalendarViewIcon />} 
             label="Calendar View" 
+            iconPosition="start"
             {...a11yProps(0)} 
           />
           <Tab 
             icon={<ViewListIcon />} 
             label="List View" 
+            iconPosition="start"
             {...a11yProps(1)} 
           />
         </Tabs>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 1, 
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          justifyContent: { xs: 'flex-start', md: 'flex-end' },
+          mt: { xs: 1, md: 0 }
+        }}>
           {lastUpdate && (
             <Tooltip title={`Ultimo aggiornamento: ${new Date(lastUpdate).toLocaleString('it-IT')}`}>
               <Chip 
@@ -203,7 +221,7 @@ const ScheduleContainer = ({ events }) => {
                 label={formatDistanceToNow(lastUpdate, { addSuffix: true, locale: it })}
                 size="small"
                 variant="outlined"
-                sx={{ cursor: 'help' }}
+                sx={{ cursor: 'help', flexShrink: 0 }}
               />
             </Tooltip>
           )}
@@ -216,6 +234,7 @@ const ScheduleContainer = ({ events }) => {
             <IconButton 
               onClick={(e) => setExportAnchorEl(e.currentTarget)}
               size="small"
+              sx={{ flexShrink: 0 }}
             >
               <IosShareIcon />
             </IconButton>
@@ -225,6 +244,7 @@ const ScheduleContainer = ({ events }) => {
               onClick={handleForceRefresh}
               size="small"
               color="primary"
+              sx={{ flexShrink: 0 }}
             >
               <RefreshIcon />
             </IconButton>
@@ -286,7 +306,7 @@ const ScheduleContainer = ({ events }) => {
         </Menu>
       </Box>
 
-      <Stack spacing={2}>
+      <Stack spacing={2} sx={{ mt: { xs: 2, md: 3 } }}>
         <ProgramFilter
           events={events}
           selectedPrograms={programFilters}
