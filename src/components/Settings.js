@@ -401,7 +401,12 @@ const Settings = () => {
                     <Typography variant="body2" component="span">
                       {timetable.name.includes('Year') ? `Year ${timetable.name.split('Year ')[1]}` : ''}
                     </Typography>
-                    <Typography variant="caption" display="block" color="text.secondary">
+                    <Typography 
+                      variant="caption" 
+                      display="block" 
+                      color="text.secondary"
+                      sx={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                    >
                       {timetable.url}
                     </Typography>
                   </>
