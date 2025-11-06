@@ -135,22 +135,12 @@ async function fetchProgramSchedule(url, programName) {
     
     const urlObj = new URL(url);
     const existingCurricula = urlObj.searchParams.get('curricula');
-    const existingYear = urlObj.searchParams.get('anno');
-
-    // If year is already specified, fetch only that year
-    if (existingYear) {
-    console.log(`[Calendar] Fetching specific year ${existingYear} for ${programName}`);
-      const response = await fetchScheduleFromUniBo(url);
-      return response.data.map(event => ({
-        ...event,
-        year: parseInt(existingYear),
-        program: programName
-      }));
-    }
+    urlObj.searchParams.delete('anno');
+    const baseTimetableUrl = urlObj.toString();
 
     // Otherwise, fetch all years for the program type
     const createYearUrl = (year) => {
-      const yearUrl = new URL(url);
+      const yearUrl = new URL(baseTimetableUrl);
       yearUrl.searchParams.set('anno', year.toString());
       if (existingCurricula) {
         yearUrl.searchParams.set('curricula', existingCurricula);
