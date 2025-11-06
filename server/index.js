@@ -7,6 +7,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+async function fetchScheduleFromUniBo(targetUrl) {
+  return axios.get(targetUrl, {
+    timeout: 10000,
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Accept': 'application/json'
+    }
+  });
+}
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.send('Unibo Smart Calendar Server - Endpoints: /test, /api/fetch-schedule, /calendar.ics');
@@ -32,13 +42,7 @@ app.get('/api/fetch-schedule', async (req, res) => {
     console.log(`[Proxy] Fetching schedule from: ${url}`);
     
     // Fetch data from UniBo (no CORS issues server-side)
-    const response = await axios.get(url, {
-      timeout: 10000, // 10 second timeout
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'application/json'
-      }
-    });
+    const response = await fetchScheduleFromUniBo(url);
 
     console.log(`[Proxy] Successfully fetched ${Array.isArray(response.data) ? response.data.length : 0} events`);
     
@@ -84,8 +88,8 @@ async function fetchProgramSchedule(url, programName) {
 
     // If year is already specified, fetch only that year
     if (existingYear) {
-      console.log(`[Calendar] Fetching specific year ${existingYear} for ${programName}`);
-      const response = await axios.get(`http://localhost:3001/api/fetch-schedule?url=${encodeURIComponent(url)}`);
+    console.log(`[Calendar] Fetching specific year ${existingYear} for ${programName}`);
+      const response = await fetchScheduleFromUniBo(url);
       return response.data.map(event => ({
         ...event,
         year: parseInt(existingYear),
@@ -117,7 +121,7 @@ async function fetchProgramSchedule(url, programName) {
     for (let year = 1; year <= maxYears; year++) {
       const yearUrl = createYearUrl(year);
       yearRequests.push(
-        axios.get(`http://localhost:3001/api/fetch-schedule?url=${encodeURIComponent(yearUrl)}`)
+        fetchScheduleFromUniBo(yearUrl)
           .then(response => ({
             year,
             data: response.data
@@ -200,6 +204,11 @@ app.get('/calendar.ics', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Calendar server running on port ${PORT}`);
-});
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Calendar server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;

@@ -1,5 +1,24 @@
 import axios from 'axios';
 
+const resolveApiBaseUrl = () => {
+  const fromEnv = process.env.REACT_APP_API_BASE_URL;
+  if (fromEnv && fromEnv.trim()) {
+    return fromEnv.replace(/\/$/, '');
+  }
+
+  if (typeof window !== 'undefined' && window.location) {
+    if (window.location.hostname === 'localhost') {
+      return 'http://localhost:3001';
+    }
+    return window.location.origin.replace(/\/$/, '');
+  }
+
+  return 'http://localhost:3001';
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
+export const getApiBaseUrl = () => API_BASE_URL;
+
 const fetchProgramSchedule = async (url, programName) => {
   try {
     // Check if we have a manually specified number of years for this program
@@ -70,7 +89,7 @@ const fetchProgramSchedule = async (url, programName) => {
         
         try {
           // Use the proxy server to avoid CORS issues
-          const proxyUrl = `http://localhost:3001/api/fetch-schedule?url=${encodeURIComponent(yearUrl.toString())}`;
+          const proxyUrl = `${API_BASE_URL}/api/fetch-schedule?url=${encodeURIComponent(yearUrl.toString())}`;
           const response = await axios.get(proxyUrl);
           
           if (Array.isArray(response.data) && response.data.length > 0) {
