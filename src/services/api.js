@@ -1,11 +1,6 @@
 import axios from 'axios';
 
-export const DEFAULT_TIMETABLE_URLS = Object.freeze([
-  {
-    name: 'Digital Transformation Management',
-    url: 'https://corsi.unibo.it/2cycle/DigitalTransformationManagement/timetable/@@orario_reale_json'
-  }
-]);
+export const DEFAULT_TIMETABLE_URLS = Object.freeze([]);
 
 const CALENDAR_PROFILE_ID_KEY = 'calendarProfileId';
 
