@@ -294,7 +294,19 @@ app.get('/calendar.ics', async (req, res) => {
         ? new Set(courseKeys)
         : null;
     const filteredEvents = applyFiltersToEvents(allEvents, activeFilters, courseKeysSet);
-    const eventsForIcs = filteredEvents.length > 0 ? filteredEvents : allEvents;
+    const hasFilters =
+      (activeFilters && Object.keys(activeFilters).length > 0) ||
+      (courseKeysSet && courseKeysSet.size > 0);
+    let eventsForIcs;
+    
+    if (filteredEvents.length > 0) {
+      eventsForIcs = filteredEvents;
+    } else if (hasFilters) {
+      eventsForIcs = [];
+    } else {
+      eventsForIcs = allEvents;
+    }
+
     const icsContent = generateICSContent(eventsForIcs);
 
     if (!icsContent) {
