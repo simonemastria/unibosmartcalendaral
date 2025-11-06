@@ -85,6 +85,20 @@ export const getCalendarProfilePayload = () => ({
   timetables: getStoredTimetableUrls()
 });
 
+export const syncCalendarProfile = async (payload) => {
+  try {
+    if (!payload || !payload.profileId || !Array.isArray(payload.timetables)) {
+      return false;
+    }
+
+    await axios.post(`${API_BASE_URL}/api/profile`, payload);
+    return true;
+  } catch (error) {
+    console.error('Failed to sync calendar profile with server:', error);
+    return false;
+  }
+};
+
 const fetchProgramSchedule = async (url, programName) => {
   try {
     // Check if we have a manually specified number of years for this program
@@ -229,6 +243,14 @@ export const fetchSchedule = async () => {
     }
 
     console.log(`Total events fetched: ${allSchedules.length}`);
+    
+    // Keep server-side profile in sync for subscriptions
+    syncCalendarProfile({
+      profileId: getCalendarProfileId(),
+      timetables: timetableUrls
+    }).catch(() => {
+      // Already logged in syncCalendarProfile; ignore here
+    });
     
     // Return events (empty array if none found)
     return allSchedules;

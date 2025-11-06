@@ -7,6 +7,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const profileStore = global.__calendarProfileStore || new Map();
+if (!global.__calendarProfileStore) {
+  global.__calendarProfileStore = profileStore;
+}
+
 async function fetchScheduleFromUniBo(targetUrl) {
   return axios.get(targetUrl, {
     timeout: 10000,
@@ -177,31 +182,50 @@ function generateICSContent(events) {
 // Endpoint to serve calendar data
 app.get('/calendar.ics', async (req, res) => {
   try {
+    res.set('Cache-Control', 'no-store, max-age=0');
     const urlsParam = req.query.urls;
-    if (!urlsParam) {
-      return res.status(400).send('No calendar URLs provided');
+    const profileId = req.query.profileId;
+
+    let timetableConfigs = null;
+
+    if (profileId) {
+      const storedProfile = profileStore.get(profileId);
+      if (storedProfile && Array.isArray(storedProfile.timetables)) {
+        timetableConfigs = storedProfile.timetables;
+        console.log(`[Calendar] Loaded ${timetableConfigs.length} timetables for profile ${profileId}`);
+      } else {
+        console.warn(`[Calendar] No stored timetable configuration found for profile ${profileId}`);
+      }
     }
 
-    let parsedConfig;
-    try {
-      parsedConfig = JSON.parse(decodeURIComponent(urlsParam));
-    } catch (parseError) {
-      console.error('Failed to parse calendar configuration:', parseError);
-      return res.status(400).send('Invalid calendar configuration');
+    if (!timetableConfigs && !urlsParam) {
+      return res.status(400).send('No calendar configuration provided');
     }
 
-    const timetableConfigs = Array.isArray(parsedConfig)
-      ? parsedConfig
-      : Array.isArray(parsedConfig?.timetables)
-        ? parsedConfig.timetables
-        : null;
+    if (!timetableConfigs && urlsParam) {
+      try {
+        const parsedConfig = JSON.parse(decodeURIComponent(urlsParam));
+        timetableConfigs = Array.isArray(parsedConfig)
+          ? parsedConfig
+          : Array.isArray(parsedConfig?.timetables)
+            ? parsedConfig.timetables
+            : null;
+
+        if (!Array.isArray(timetableConfigs) || timetableConfigs.length === 0) {
+          return res.status(400).send('No valid timetables provided');
+        }
+      } catch (parseError) {
+        console.error('Failed to parse calendar configuration:', parseError);
+        return res.status(400).send('Invalid calendar configuration');
+      }
+    }
 
     if (!Array.isArray(timetableConfigs) || timetableConfigs.length === 0) {
-      return res.status(400).send('No valid timetables provided');
+      return res.status(404).send('Calendar configuration missing. Re-open the app to refresh your subscription.');
     }
 
-    if (parsedConfig?.profileId) {
-      console.log(`[Calendar] Generating ICS for profile ${parsedConfig.profileId}`);
+    if (profileId) {
+      console.log(`[Calendar] Generating ICS for profile ${profileId}`);
     }
 
     const allSchedules = await Promise.all(
@@ -221,6 +245,32 @@ app.get('/calendar.ics', async (req, res) => {
   } catch (error) {
     console.error('Error serving calendar:', error);
     res.status(500).send('Internal server error');
+  }
+});
+
+app.post('/api/profile', (req, res) => {
+  try {
+    const { profileId, timetables } = req.body || {};
+
+    if (!profileId || typeof profileId !== 'string') {
+      return res.status(400).json({ error: 'Missing profileId' });
+    }
+
+    if (!Array.isArray(timetables) || timetables.length === 0) {
+      return res.status(400).json({ error: 'No timetables provided' });
+    }
+
+    profileStore.set(profileId, {
+      timetables,
+      updatedAt: Date.now()
+    });
+
+    console.log(`[Profile] Stored timetable configuration for profile ${profileId} (${timetables.length} entries)`);
+
+    return res.json({ status: 'ok' });
+  } catch (error) {
+    console.error('[Profile] Failed to store timetable configuration:', error);
+    return res.status(500).json({ error: 'Failed to store profile configuration' });
   }
 });
 

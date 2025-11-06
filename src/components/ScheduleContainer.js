@@ -6,7 +6,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { downloadICSFile } from '../services/calendar';
-import { getApiBaseUrl, getCalendarProfilePayload } from '../services/api';
+import { getApiBaseUrl, getCalendarProfilePayload, syncCalendarProfile } from '../services/api';
 import CalendarView from './CalendarView';
 import CardList from './CardList';
 import ProgramFilter from './ProgramFilter';
@@ -269,12 +269,19 @@ const ScheduleContainer = ({ events }) => {
           }}>
             Download Calendar File
           </MenuItem>
-          <MenuItem onClick={() => {
+          <MenuItem onClick={async () => {
             // Create subscription URL
             const profilePayload = getCalendarProfilePayload();
-            const encodedUrls = encodeURIComponent(JSON.stringify(profilePayload));
+            const synced = await syncCalendarProfile(profilePayload);
+
+            if (!synced) {
+              setExportAnchorEl(null);
+              alert('Impossibile sincronizzare il calendario sul server. Riprova.');
+              return;
+            }
+
             const apiBaseUrl = getApiBaseUrl();
-            const calendarUrl = new URL(`/calendar.ics?urls=${encodedUrls}`, apiBaseUrl).toString();
+            const calendarUrl = new URL(`/calendar.ics?profileId=${profilePayload.profileId}`, apiBaseUrl).toString();
             const subscriptionUrl = calendarUrl.replace(/^https?:/, 'webcal:');
             
             // Try to copy to clipboard
