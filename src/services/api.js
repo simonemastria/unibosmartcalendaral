@@ -140,6 +140,8 @@ const fetchProgramSchedule = async (url, programName) => {
     // Check if URL already has curricula parameter
     const urlObj = new URL(url);
     const existingCurricula = urlObj.searchParams.get('curricula');
+    urlObj.searchParams.delete('anno');
+    const baseTimetableUrl = urlObj.toString();
 
     // Determine the number of years based on program type or manual setting
     let maxYears;
@@ -166,7 +168,7 @@ const fetchProgramSchedule = async (url, programName) => {
     for (let year = 1; year <= maxYears; year++) {
       try {
         // Create URL with year parameter
-        const yearUrl = new URL(url);
+        const yearUrl = new URL(baseTimetableUrl);
         yearUrl.searchParams.set('anno', year.toString());
         if (existingCurricula) {
           yearUrl.searchParams.set('curricula', existingCurricula);
