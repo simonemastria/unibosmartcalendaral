@@ -1,0 +1,10 @@
+{
+    // Jest Testing Configuration
+    "jest.autoRun": "off",
+    "jest.jestCommandLine": "npm test --",
+    "jest.rootPath": ".",
+    "jest.runMode": "on-demand",
+    "testing.automaticallyOpenPeekView": "never",
+    "jestrunner.jestCommand": "npm test --",
+    "jestrunner.configPath": ""
+}
