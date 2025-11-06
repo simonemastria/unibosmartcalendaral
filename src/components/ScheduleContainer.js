@@ -6,7 +6,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { downloadICSFile } from '../services/calendar';
-import { getApiBaseUrl } from '../services/api';
+import { getApiBaseUrl, getStoredTimetableUrls } from '../services/api';
 import CalendarView from './CalendarView';
 import CardList from './CardList';
 import ProgramFilter from './ProgramFilter';
@@ -251,7 +251,7 @@ const ScheduleContainer = ({ events }) => {
           </MenuItem>
           <MenuItem onClick={() => {
             // Create subscription URL
-            const timetableUrls = JSON.parse(localStorage.getItem('timetableUrls'));
+            const timetableUrls = getStoredTimetableUrls();
             const encodedUrls = encodeURIComponent(JSON.stringify(timetableUrls));
             const apiBaseUrl = getApiBaseUrl();
             const calendarUrl = new URL(`/calendar.ics?urls=${encodedUrls}`, apiBaseUrl).toString();

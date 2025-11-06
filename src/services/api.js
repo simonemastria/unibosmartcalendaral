@@ -1,5 +1,12 @@
 import axios from 'axios';
 
+export const DEFAULT_TIMETABLE_URLS = Object.freeze([
+  {
+    name: 'Digital Transformation Management',
+    url: 'https://corsi.unibo.it/2cycle/DigitalTransformationManagement/timetable/@@orario_reale_json'
+  }
+]);
+
 const resolveApiBaseUrl = () => {
   const fromEnv = process.env.REACT_APP_API_BASE_URL;
   if (fromEnv && fromEnv.trim()) {
@@ -18,6 +25,32 @@ const resolveApiBaseUrl = () => {
 
 const API_BASE_URL = resolveApiBaseUrl();
 export const getApiBaseUrl = () => API_BASE_URL;
+
+const cloneDefaultTimetables = () =>
+  DEFAULT_TIMETABLE_URLS.map((timetable) => ({ ...timetable }));
+
+export const getStoredTimetableUrls = () => {
+  try {
+    if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') {
+      return cloneDefaultTimetables();
+    }
+
+    const saved = window.localStorage.getItem('timetableUrls');
+    if (!saved) {
+      return cloneDefaultTimetables();
+    }
+
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return cloneDefaultTimetables();
+    }
+
+    return parsed;
+  } catch (error) {
+    console.error('Failed to load timetable URLs from storage:', error);
+    return cloneDefaultTimetables();
+  }
+};
 
 const fetchProgramSchedule = async (url, programName) => {
   try {
@@ -137,11 +170,7 @@ const fetchProgramSchedule = async (url, programName) => {
 export const fetchSchedule = async () => {
   try {
     // Get saved timetable URLs from localStorage
-    const savedUrls = localStorage.getItem('timetableUrls');
-    const timetableUrls = savedUrls ? JSON.parse(savedUrls) : [{
-      name: 'Digital Transformation Management',
-      url: 'https://corsi.unibo.it/2cycle/DigitalTransformationManagement/timetable/@@orario_reale_json'
-    }];
+    const timetableUrls = getStoredTimetableUrls();
 
     console.log('Fetching schedules for programs:', timetableUrls);
 
