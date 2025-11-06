@@ -1,8 +1,22 @@
 import React, { useState, useMemo } from 'react';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
+import { format, parse, startOfWeek, endOfWeek, getDay, addMonths, addWeeks, addDays } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Box, Paper, Dialog, DialogTitle, DialogContent, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { 
+  Box, 
+  Paper, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  ToggleButtonGroup, 
+  ToggleButton, 
+  IconButton, 
+  Button, 
+  Typography 
+} from '@mui/material';
+import TodayIcon from '@mui/icons-material/Today';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './CalendarCustom.css';
 import EventList from './EventList';
@@ -25,6 +39,39 @@ const calendarMinHeight = {
   xs: 540,
   sm: 720,
   md: 800
+};
+
+const moveDateByView = (currentDate, view, direction) => {
+  switch (view) {
+    case Views.DAY:
+      return addDays(currentDate, direction);
+    case Views.WEEK:
+    case Views.AGENDA:
+      return addWeeks(currentDate, direction);
+    case Views.MONTH:
+    default:
+      return addMonths(currentDate, direction);
+  }
+};
+
+const formatViewLabel = (date, view) => {
+  switch (view) {
+    case Views.DAY:
+      return localizer.format(date, 'EEEE dd MMMM yyyy');
+    case Views.WEEK: {
+      const start = startOfWeek(date, { locale: it });
+      const end = endOfWeek(date, { locale: it });
+      return `${localizer.format(start, 'dd MMM')} – ${localizer.format(end, 'dd MMM yyyy')}`;
+    }
+    case Views.AGENDA: {
+      const start = startOfWeek(date, { locale: it });
+      const end = endOfWeek(date, { locale: it });
+      return `${localizer.format(start, 'dd MMM yyyy')} – ${localizer.format(end, 'dd MMM yyyy')}`;
+    }
+    case Views.MONTH:
+    default:
+      return localizer.format(date, 'MMMM yyyy');
+  }
 };
 
 const CalendarView = ({ events }) => {
@@ -83,9 +130,18 @@ const CalendarView = ({ events }) => {
   };
 
   const handleViewChange = (newView) => {
-    if (newView) {
+    if (newView && newView !== view) {
       setView(newView);
     }
+  };
+
+  const handleNavigationControl = (type) => {
+    if (type === 'TODAY') {
+      setDate(new Date());
+      return;
+    }
+
+    setDate(prevDate => moveDateByView(prevDate, view, type === 'NEXT' ? 1 : -1));
   };
 
   // Find conflicts
@@ -175,6 +231,60 @@ const CalendarView = ({ events }) => {
           overflow: 'hidden' 
         }}
       >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'stretch', sm: 'center' },
+            justifyContent: 'space-between',
+            gap: { xs: 1.5, sm: 2 },
+            mb: 2
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: { xs: 'space-between', sm: 'flex-start' },
+              gap: 1
+            }}
+          >
+            <IconButton
+              size="small"
+              onClick={() => handleNavigationControl('PREV')}
+              aria-label="Giorno precedente"
+            >
+              <ChevronLeftIcon fontSize="small" />
+            </IconButton>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: 600,
+                textTransform: 'capitalize',
+                textAlign: 'center',
+                minWidth: { xs: 'auto', sm: 200 }
+              }}
+            >
+              {formatViewLabel(date, view)}
+            </Typography>
+            <IconButton
+              size="small"
+              onClick={() => handleNavigationControl('NEXT')}
+              aria-label="Giorno successivo"
+            >
+              <ChevronRightIcon fontSize="small" />
+            </IconButton>
+          </Box>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<TodayIcon fontSize="small" />}
+            onClick={() => handleNavigationControl('TODAY')}
+            sx={{ alignSelf: { xs: 'stretch', sm: 'center' } }}
+          >
+            Oggi
+          </Button>
+        </Box>
         <ToggleButtonGroup
           value={view}
           exclusive
@@ -225,6 +335,7 @@ const CalendarView = ({ events }) => {
             timeslots={2}
             getNow={() => new Date()} // Ensure current time is always fresh
             showMultiDayTimes={true}
+            components={{ toolbar: () => null }}
             messages={{
               today: 'Oggi',
               previous: 'Precedente',
