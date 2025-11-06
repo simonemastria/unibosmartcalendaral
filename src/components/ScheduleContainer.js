@@ -169,6 +169,14 @@ const ScheduleContainer = ({ events }) => {
     return filtered;
   }, [events, programFilters]);
 
+  useEffect(() => {
+    const payload = getCalendarProfilePayload(programFilters);
+    if (!payload.timetables || payload.timetables.length === 0) {
+      return;
+    }
+    syncCalendarProfile(payload);
+  }, [programFilters, events]);
+
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ 
@@ -271,7 +279,7 @@ const ScheduleContainer = ({ events }) => {
           </MenuItem>
           <MenuItem onClick={async () => {
             // Create subscription URL
-            const profilePayload = getCalendarProfilePayload();
+            const profilePayload = getCalendarProfilePayload(programFilters);
             const synced = await syncCalendarProfile(profilePayload);
 
             if (!synced) {
@@ -281,8 +289,10 @@ const ScheduleContainer = ({ events }) => {
             }
 
             const apiBaseUrl = getApiBaseUrl();
-            const calendarUrl = new URL(`/calendar.ics?profileId=${profilePayload.profileId}`, apiBaseUrl).toString();
-            const subscriptionUrl = calendarUrl.replace(/^https?:/, 'webcal:');
+            const calendarUrl = new URL('/calendar.ics', apiBaseUrl);
+            calendarUrl.searchParams.set('profileId', profilePayload.profileId);
+            calendarUrl.searchParams.set('urls', JSON.stringify(profilePayload));
+            const subscriptionUrl = calendarUrl.toString().replace(/^https?:/, 'webcal:');
             
             // Try to copy to clipboard
             navigator.clipboard.writeText(subscriptionUrl).catch(() => {

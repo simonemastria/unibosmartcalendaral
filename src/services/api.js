@@ -80,14 +80,20 @@ export const getCalendarProfileId = () => {
   }
 };
 
-export const getCalendarProfilePayload = () => ({
+export const getCalendarProfilePayload = (filters = {}) => ({
   profileId: getCalendarProfileId(),
-  timetables: getStoredTimetableUrls()
+  timetables: getStoredTimetableUrls(),
+  filters
 });
 
 export const syncCalendarProfile = async (payload) => {
   try {
-    if (!payload || !payload.profileId || !Array.isArray(payload.timetables)) {
+    if (
+      !payload ||
+      !payload.profileId ||
+      !Array.isArray(payload.timetables) ||
+      payload.timetables.length === 0
+    ) {
       return false;
     }
 
@@ -243,14 +249,6 @@ export const fetchSchedule = async () => {
     }
 
     console.log(`Total events fetched: ${allSchedules.length}`);
-    
-    // Keep server-side profile in sync for subscriptions
-    syncCalendarProfile({
-      profileId: getCalendarProfileId(),
-      timetables: timetableUrls
-    }).catch(() => {
-      // Already logged in syncCalendarProfile; ignore here
-    });
     
     // Return events (empty array if none found)
     return allSchedules;

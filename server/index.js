@@ -22,6 +22,44 @@ async function fetchScheduleFromUniBo(targetUrl) {
   });
 }
 
+const getBaseProgramName = (programName = '') => programName.split(' - ')[0] || '';
+
+const makeCourseKey = (event) => {
+  const eventYear = Number(event.year);
+  return `${event.title}_${eventYear}_${event.program}`;
+};
+
+function applyFiltersToEvents(events, filters) {
+  if (!filters || Object.keys(filters).length === 0) {
+    return events;
+  }
+
+  return events.filter((event) => {
+    if (!event.program) return false;
+
+    const baseName = getBaseProgramName(event.program);
+    const programFilter = filters[baseName];
+    if (!programFilter) return false;
+
+    const selectedYears = Array.isArray(programFilter.selectedYears)
+      ? programFilter.selectedYears.map(Number)
+      : [];
+    const selectedCourses = Array.isArray(programFilter.selectedCourses)
+      ? programFilter.selectedCourses
+      : [];
+
+    const eventYear = Number(event.year);
+    const courseKey = makeCourseKey(event);
+
+    const includeYear =
+      selectedYears.length === 0 || selectedYears.includes(eventYear);
+    const includeCourse =
+      selectedCourses.length === 0 || selectedCourses.includes(courseKey);
+
+    return includeYear && includeCourse;
+  });
+}
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.send('Unibo Smart Calendar Server - Endpoints: /test, /api/fetch-schedule, /calendar.ics');
@@ -187,11 +225,13 @@ app.get('/calendar.ics', async (req, res) => {
     const profileId = req.query.profileId;
 
     let timetableConfigs = null;
+    let activeFilters = null;
 
     if (profileId) {
       const storedProfile = profileStore.get(profileId);
       if (storedProfile && Array.isArray(storedProfile.timetables)) {
         timetableConfigs = storedProfile.timetables;
+        activeFilters = storedProfile.filters || null;
         console.log(`[Calendar] Loaded ${timetableConfigs.length} timetables for profile ${profileId}`);
       } else {
         console.warn(`[Calendar] No stored timetable configuration found for profile ${profileId}`);
@@ -210,6 +250,7 @@ app.get('/calendar.ics', async (req, res) => {
           : Array.isArray(parsedConfig?.timetables)
             ? parsedConfig.timetables
             : null;
+        activeFilters = parsedConfig?.filters || activeFilters;
 
         if (!Array.isArray(timetableConfigs) || timetableConfigs.length === 0) {
           return res.status(400).send('No valid timetables provided');
@@ -233,7 +274,9 @@ app.get('/calendar.ics', async (req, res) => {
     );
 
     const allEvents = allSchedules.flat();
-    const icsContent = generateICSContent(allEvents);
+    const filteredEvents = applyFiltersToEvents(allEvents, activeFilters);
+    const eventsForIcs = filteredEvents.length > 0 ? filteredEvents : allEvents;
+    const icsContent = generateICSContent(eventsForIcs);
 
     if (!icsContent) {
       return res.status(500).send('Error generating calendar');
@@ -250,7 +293,7 @@ app.get('/calendar.ics', async (req, res) => {
 
 app.post('/api/profile', (req, res) => {
   try {
-    const { profileId, timetables } = req.body || {};
+    const { profileId, timetables, filters } = req.body || {};
 
     if (!profileId || typeof profileId !== 'string') {
       return res.status(400).json({ error: 'Missing profileId' });
@@ -262,6 +305,7 @@ app.post('/api/profile', (req, res) => {
 
     profileStore.set(profileId, {
       timetables,
+      filters: filters || {},
       updatedAt: Date.now()
     });
 
