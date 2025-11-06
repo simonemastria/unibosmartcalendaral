@@ -9,7 +9,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
   IconButton,
   Snackbar,
   Alert
@@ -332,7 +331,7 @@ const Settings = () => {
   };
 
   return (
-    <Box sx={{ p: 3, maxWidth: 800, mx: 'auto' }}>
+    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 800, mx: 'auto' }}>
       <Typography variant="h4" gutterBottom>
         Calendar Settings
       </Typography>
@@ -341,7 +340,7 @@ const Settings = () => {
         <Typography variant="h6" gutterBottom>
           Add New Timetable
         </Typography>
-        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, mb: 2 }}>
           <TextField
             fullWidth
             label="Timetable JSON URL"
@@ -354,7 +353,7 @@ const Settings = () => {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleAddUrl}
-            sx={{ minWidth: '120px' }}
+            sx={{ minWidth: { sm: '120px' }, width: { xs: '100%', sm: 'auto' } }}
           >
             Add
           </Button>
@@ -385,7 +384,12 @@ const Settings = () => {
         )}
         <List>
           {timetableUrls.map((timetable, index) => (
-            <ListItem key={index} divider={index < timetableUrls.length - 1}>
+            <ListItem 
+              key={index} 
+              divider={index < timetableUrls.length - 1}
+              alignItems="flex-start"
+              sx={{ flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1, sm: 0 } }}
+            >
               <ListItemText
                 primary={
                   <Typography variant="subtitle1" fontWeight="medium">
@@ -403,22 +407,34 @@ const Settings = () => {
                   </>
                 }
               />
-              <ListItemSecondaryAction>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 1,
+                  alignItems: 'center',
+                  justifyContent: { xs: 'flex-end', sm: 'flex-start' },
+                  width: { xs: '100%', sm: 'auto' }
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="primary"
+                  onClick={() => handleEditYears(timetable)}
+                  sx={{ flexGrow: { xs: 1, sm: 0 }, minWidth: { sm: 120 } }}
+                >
+                  Edit
+                </Button>
                 <IconButton
                   edge="end"
                   aria-label="delete"
                   onClick={() => handleRemoveUrl(index)}
+                  size="small"
                 >
-                  <DeleteIcon />
+                  <DeleteIcon fontSize="small" />
                 </IconButton>
-                <IconButton
-                  edge="end"
-                  aria-label="edit"
-                  onClick={() => handleEditYears(timetable)}
-                >
-                  Edit Years
-                </IconButton>
-              </ListItemSecondaryAction>
+              </Box>
             </ListItem>
           ))}
         </List>
@@ -433,7 +449,7 @@ const Settings = () => {
           <Typography variant="subtitle2" gutterBottom>
             Program Name
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, mb: 3 }}>
             <TextField
               fullWidth
               label="Program Name"
@@ -447,6 +463,7 @@ const Settings = () => {
               color="primary"
               onClick={handleSaveProgram}
               disabled={!editingProgramName.trim()}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
             >
               Update Name
             </Button>
@@ -455,7 +472,7 @@ const Settings = () => {
           <Typography variant="subtitle2" gutterBottom>
             Program Years
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, mb: 2 }}>
             <TextField
               fullWidth
               label="Number of Years"
@@ -471,19 +488,20 @@ const Settings = () => {
             />
           </Box>
           
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column-reverse', sm: 'row' }, justifyContent: 'flex-end', gap: { xs: 1, sm: 2 }, mt: 3 }}>
             <Button 
               onClick={() => {
                 setEditingProgramYears(null);
                 setEditingProgramName('');
               }}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
             >
               Cancel
             </Button>
             <Button 
               variant="contained" 
               color="primary" 
-              sx={{ ml: 1 }}
+              sx={{ ml: { sm: 1 }, width: { xs: '100%', sm: 'auto' } }}
               onClick={() => handleSaveYears(editingProgramYears, programYears[editingProgramYears.name] || 1)}
             >
               Save Years

@@ -246,15 +246,6 @@
   border-color: #ac3931 !important;
 }
 
-.rbc-toolbar-label {
-  font-weight: 700 !important;
-  font-size: 1.1rem !important;
-  text-transform: capitalize !important;
-  color: #333 !important;
-  flex-grow: 1 !important;
-  text-align: center !important;
-}
-
 /* Main calendar container */
 .rbc-calendar {
   min-height: 500px !important;
@@ -269,12 +260,7 @@
     padding: 12px !important;
     gap: 8px !important;
   }
-  
-  .rbc-toolbar-label {
-    order: -1;
-    margin-bottom: 8px;
-  }
-  
+
   .rbc-event {
     font-size: 0.75rem !important;
     padding: 2px 4px !important;
@@ -338,4 +324,7 @@
 
 .rbc-time-content::-webkit-scrollbar-thumb:hover {
   background: #8b2e28;
+}
+.rbc-toolbar-label {
+  display: none !important;
 }

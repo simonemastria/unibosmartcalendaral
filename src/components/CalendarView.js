@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Box, Paper, Dialog, DialogTitle, DialogContent } from '@mui/material';
+import { Box, Paper, Dialog, DialogTitle, DialogContent, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './CalendarCustom.css';
 import EventList from './EventList';
@@ -83,7 +83,9 @@ const CalendarView = ({ events }) => {
   };
 
   const handleViewChange = (newView) => {
-    setView(newView);
+    if (newView) {
+      setView(newView);
+    }
   };
 
   // Find conflicts
@@ -173,6 +175,28 @@ const CalendarView = ({ events }) => {
           overflow: 'hidden' 
         }}
       >
+        <ToggleButtonGroup
+          value={view}
+          exclusive
+          onChange={(event, nextView) => handleViewChange(nextView)}
+          size="small"
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: { xs: 'center', sm: 'flex-start' },
+            gap: 1,
+            mb: 2,
+            '& .MuiToggleButton-root': {
+              flex: { xs: '1 1 45%', sm: '0 0 auto' },
+              minWidth: { xs: '45%', sm: 100 }
+            }
+          }}
+        >
+          <ToggleButton value={Views.MONTH}>Mese</ToggleButton>
+          <ToggleButton value={Views.WEEK}>Settimana</ToggleButton>
+          <ToggleButton value={Views.DAY}>Giorno</ToggleButton>
+          <ToggleButton value={Views.AGENDA}>Agenda</ToggleButton>
+        </ToggleButtonGroup>
         <Box sx={calendarStyle}>
           <Calendar
             localizer={localizer}
