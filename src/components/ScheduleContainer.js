@@ -89,16 +89,23 @@ const ScheduleContainer = ({ events }) => {
     setProgramFilters(newFilters);
   };
 
-  const filteredEvents = useMemo(() => {
+  const { filteredEvents, activeCourseKeys } = useMemo(() => {
+    const courseKeys = [];
     console.log('All events:', events);
     console.log('Program filters:', programFilters);
     
     if (!programFilters || Object.keys(programFilters).length === 0) {
       console.log('No program filters set, showing all events');
-      return events.map(event => ({
-        ...event,
-        title: `[${event.program}] ${event.title}`
-      }));
+      return {
+        filteredEvents: events.map(event => ({
+          ...event,
+          title: `[${event.program}] ${event.title}`
+        })),
+        activeCourseKeys: events.map(event => {
+          const eventYear = Number(event.year);
+          return `${event.title}_${eventYear}_${event.program}`;
+        })
+      };
     }
     
     const filtered = events.filter(event => {
@@ -151,10 +158,14 @@ const ScheduleContainer = ({ events }) => {
       });
       
       return isIncluded;
-    }).map(event => ({
-      ...event,
-      title: `[${event.program}] ${event.title}`
-    }));
+    }).map(event => {
+      const eventYear = Number(event.year);
+      courseKeys.push(`${event.title}_${eventYear}_${event.program}`);
+      return {
+        ...event,
+        title: `[${event.program}] ${event.title}`
+      };
+    });
     
     console.log('Filtered events:', filtered);
     
@@ -166,16 +177,19 @@ const ScheduleContainer = ({ events }) => {
       });
     }
     
-    return filtered;
+    return {
+      filteredEvents: filtered,
+      activeCourseKeys: courseKeys
+    };
   }, [events, programFilters]);
 
   useEffect(() => {
-    const payload = getCalendarProfilePayload(programFilters);
+    const payload = getCalendarProfilePayload(programFilters, activeCourseKeys);
     if (!payload.timetables || payload.timetables.length === 0) {
       return;
     }
     syncCalendarProfile(payload);
-  }, [programFilters, events]);
+  }, [programFilters, events, activeCourseKeys]);
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -279,7 +293,7 @@ const ScheduleContainer = ({ events }) => {
           </MenuItem>
           <MenuItem onClick={async () => {
             // Create subscription URL
-            const profilePayload = getCalendarProfilePayload(programFilters);
+            const profilePayload = getCalendarProfilePayload(programFilters, activeCourseKeys);
             const synced = await syncCalendarProfile(profilePayload);
 
             if (!synced) {

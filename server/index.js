@@ -29,8 +29,13 @@ const makeCourseKey = (event) => {
   return `${event.title}_${eventYear}_${event.program}`;
 };
 
-function applyFiltersToEvents(events, filters) {
+function applyFiltersToEvents(events, filters, courseKeysSet) {
+  const hasCourseKeyFilter = courseKeysSet && courseKeysSet.size > 0;
+
   if (!filters || Object.keys(filters).length === 0) {
+    if (hasCourseKeyFilter) {
+      return events.filter((event) => courseKeysSet.has(makeCourseKey(event)));
+    }
     return events;
   }
 
@@ -53,10 +58,13 @@ function applyFiltersToEvents(events, filters) {
 
     const includeYear =
       selectedYears.length === 0 || selectedYears.includes(eventYear);
-    const includeCourse =
+    const includeCourseByFilter =
       selectedCourses.length === 0 || selectedCourses.includes(courseKey);
 
-    return includeYear && includeCourse;
+    const includeCourseByKey =
+      !hasCourseKeyFilter || courseKeysSet.has(courseKey);
+
+    return includeYear && includeCourseByFilter && includeCourseByKey;
   });
 }
 
@@ -226,12 +234,16 @@ app.get('/calendar.ics', async (req, res) => {
 
     let timetableConfigs = null;
     let activeFilters = null;
+    let courseKeys = null;
 
     if (profileId) {
       const storedProfile = profileStore.get(profileId);
       if (storedProfile && Array.isArray(storedProfile.timetables)) {
         timetableConfigs = storedProfile.timetables;
         activeFilters = storedProfile.filters || null;
+        courseKeys = Array.isArray(storedProfile.courseKeys)
+          ? storedProfile.courseKeys
+          : null;
         console.log(`[Calendar] Loaded ${timetableConfigs.length} timetables for profile ${profileId}`);
       } else {
         console.warn(`[Calendar] No stored timetable configuration found for profile ${profileId}`);
@@ -251,6 +263,9 @@ app.get('/calendar.ics', async (req, res) => {
             ? parsedConfig.timetables
             : null;
         activeFilters = parsedConfig?.filters || activeFilters;
+        courseKeys = Array.isArray(parsedConfig?.courseKeys)
+          ? parsedConfig.courseKeys
+          : courseKeys;
 
         if (!Array.isArray(timetableConfigs) || timetableConfigs.length === 0) {
           return res.status(400).send('No valid timetables provided');
@@ -274,7 +289,11 @@ app.get('/calendar.ics', async (req, res) => {
     );
 
     const allEvents = allSchedules.flat();
-    const filteredEvents = applyFiltersToEvents(allEvents, activeFilters);
+    const courseKeysSet =
+      Array.isArray(courseKeys) && courseKeys.length > 0
+        ? new Set(courseKeys)
+        : null;
+    const filteredEvents = applyFiltersToEvents(allEvents, activeFilters, courseKeysSet);
     const eventsForIcs = filteredEvents.length > 0 ? filteredEvents : allEvents;
     const icsContent = generateICSContent(eventsForIcs);
 
@@ -293,7 +312,7 @@ app.get('/calendar.ics', async (req, res) => {
 
 app.post('/api/profile', (req, res) => {
   try {
-    const { profileId, timetables, filters } = req.body || {};
+    const { profileId, timetables, filters, courseKeys } = req.body || {};
 
     if (!profileId || typeof profileId !== 'string') {
       return res.status(400).json({ error: 'Missing profileId' });
@@ -306,6 +325,7 @@ app.post('/api/profile', (req, res) => {
     profileStore.set(profileId, {
       timetables,
       filters: filters || {},
+      courseKeys: Array.isArray(courseKeys) ? courseKeys : [],
       updatedAt: Date.now()
     });
 

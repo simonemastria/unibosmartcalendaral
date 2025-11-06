@@ -80,10 +80,11 @@ export const getCalendarProfileId = () => {
   }
 };
 
-export const getCalendarProfilePayload = (filters = {}) => ({
+export const getCalendarProfilePayload = (filters = {}, courseKeys = []) => ({
   profileId: getCalendarProfileId(),
   timetables: getStoredTimetableUrls(),
-  filters
+  filters,
+  courseKeys
 });
 
 export const syncCalendarProfile = async (payload) => {
