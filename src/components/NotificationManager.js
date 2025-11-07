@@ -24,7 +24,7 @@ import {
   Add as AddIcon
 } from '@mui/icons-material';
 
-const NotificationManager = ({ events }) => {
+const NotificationManager = ({ events, ariaLabel = 'Notifications & reminders' }) => {
   const [open, setOpen] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [notify15min, setNotify15min] = useState(true);
@@ -208,6 +208,7 @@ const NotificationManager = ({ events }) => {
         onClick={() => setOpen(true)}
         color={notificationsEnabled ? 'primary' : 'default'}
         size="small"
+        aria-label={ariaLabel}
       >
         {notificationsEnabled ? <NotificationsIcon /> : <NotificationsOffIcon />}
       </IconButton>

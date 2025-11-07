@@ -13,7 +13,6 @@ import ProgramFilter from './ProgramFilter';
 import StatisticsDashboard from './StatisticsDashboard';
 import NotificationManager from './NotificationManager';
 import { formatDistanceToNow } from 'date-fns';
-import { enGB } from 'date-fns/locale';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -191,6 +190,16 @@ const ScheduleContainer = ({ events }) => {
     syncCalendarProfile(payload);
   }, [programFilters, events, activeCourseKeys]);
 
+  const relativeLastUpdate = useMemo(() => {
+    if (!lastUpdate) return null;
+    return formatDistanceToNow(new Date(lastUpdate), { addSuffix: true });
+  }, [lastUpdate]);
+
+  const formattedLastUpdate = useMemo(() => {
+    if (!lastUpdate) return null;
+    return new Date(lastUpdate).toLocaleString('en-GB');
+  }, [lastUpdate]);
+
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ 
@@ -236,26 +245,31 @@ const ScheduleContainer = ({ events }) => {
           justifyContent: { xs: 'flex-start', md: 'flex-end' },
           mt: { xs: 1, md: 0 }
         }}>
-          {lastUpdate && (
-            <Tooltip title={`Last update: ${new Date(lastUpdate).toLocaleString('en-GB')}`}>
+          {lastUpdate && relativeLastUpdate && formattedLastUpdate && (
+            <Tooltip title={`Last update: ${formattedLastUpdate}`}>
               <Chip 
                 icon={<AccessTimeIcon />} 
-                label={formatDistanceToNow(lastUpdate, { addSuffix: true, locale: enGB })}
+                label={relativeLastUpdate}
                 size="small"
                 variant="outlined"
+                aria-label={`Last update: ${formattedLastUpdate}`}
                 sx={{ cursor: 'help', flexShrink: 0 }}
               />
             </Tooltip>
           )}
           <Tooltip title="Manage notifications and reminders">
             <span>
-              <NotificationManager events={filteredEvents} />
+              <NotificationManager
+                events={filteredEvents}
+                ariaLabel="Manage notifications and reminders"
+              />
             </span>
           </Tooltip>
           <Tooltip title="Export Calendar">
             <IconButton 
               onClick={(e) => setExportAnchorEl(e.currentTarget)}
               size="small"
+              aria-label="Open export calendar menu"
               sx={{ flexShrink: 0 }}
             >
               <IosShareIcon />
@@ -266,6 +280,7 @@ const ScheduleContainer = ({ events }) => {
               onClick={handleForceRefresh}
               size="small"
               color="primary"
+              aria-label="Force refresh (clear cache)"
               sx={{ flexShrink: 0 }}
             >
               <RefreshIcon />
@@ -285,7 +300,7 @@ const ScheduleContainer = ({ events }) => {
               console.log('ICS download successful');
             } else {
               console.error('ICS download failed');
-              alert('Errore nel generare il file calendario. Controlla la console per dettagli.');
+              alert('Unable to generate the calendar file. Check the console for details.');
             }
             setExportAnchorEl(null);
           }}>
@@ -298,7 +313,7 @@ const ScheduleContainer = ({ events }) => {
 
             if (!synced) {
               setExportAnchorEl(null);
-              alert('Impossibile sincronizzare il calendario sul server. Riprova.');
+              alert('Unable to sync the calendar to the server. Please try again.');
               return;
             }
 
