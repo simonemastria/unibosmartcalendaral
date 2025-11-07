@@ -1,10 +1,11 @@
 /**
- * Test suite wrapper - imports all tests from /test folder
- * This allows Create React App to find tests outside src/
+ * Test suite wrapper - imports all tests from /tests folder
+ * Ensures Create React App runs tests placed outside /src.
  */
-
-// Import test suites from /test folder
-import '../tests/conflictUtils.test.js';
-import '../tests/App.test.js';
-
-// This file serves as an entry point for Jest to discover external tests
+import "../tests/conflictUtils.test.js";      // già presente nel repo
+import "../tests/conflictUtils.extra.test.js";
+import "../tests/eventUtils.test.js";
+import "../tests/ScheduleContainer.render.test.jsx";
+import "../tests/ScheduleContainer.conflict-smoke.test.jsx";
+import "../tests/api.error.test.js";
+import "../tests/api.fetch-success.test.js";
