@@ -28,7 +28,7 @@ export const generateICSFile = (events) => {
       'METHOD:PUBLISH',
       'X-WR-CALNAME:UniBo Calendar',
       'X-WR-TIMEZONE:Europe/Rome',
-      'X-WR-CALDESC:Calendario lezioni Università di Bologna'
+      'X-WR-CALDESC:University of Bologna timetable'
     ].join('\r\n');
 
     events.forEach(event => {
@@ -37,7 +37,7 @@ export const generateICSFile = (events) => {
         ? `${event.aule[0].des_ubicazione} - ${event.aule[0].des_risorsa}`
         : '';
       
-      const description = `Corso: ${event.title}\\nDocente: ${event.docente || 'N/A'}\\nProgramma: ${event.program}${event.note ? '\\nNote: ' + event.note : ''}`;
+      const description = `Course: ${event.title}\\nInstructor: ${event.docente || 'N/A'}\\nProgram: ${event.program}${event.note ? '\\nNotes: ' + event.note : ''}`;
 
       icsContent += '\r\n' + [
         'BEGIN:VEVENT',

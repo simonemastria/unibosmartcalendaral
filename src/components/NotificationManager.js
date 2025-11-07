@@ -104,10 +104,10 @@ const NotificationManager = ({ events }) => {
   const showNotification = (event, minutes) => {
     const location = event.aule?.length > 0 
       ? `${event.aule[0].des_ubicazione} - ${event.aule[0].des_risorsa}`
-      : 'Aula da definire';
+      : 'Room to be confirmed';
 
-    new Notification(`📚 Lezione tra ${minutes} minuti`, {
-      body: `${event.title}\n${location}\nDocente: ${event.docente || 'N/A'}`,
+    new Notification(`📚 Class starts in ${minutes} minutes`, {
+      body: `${event.title}\n${location}\nInstructor: ${event.docente || 'N/A'}`,
       icon: '/favicon.svg',
       badge: '/favicon.svg',
       tag: `lesson-${event.start}`,
@@ -118,7 +118,7 @@ const NotificationManager = ({ events }) => {
 
   const requestPermission = async () => {
     if (!('Notification' in window)) {
-      alert('Questo browser non supporta le notifiche desktop');
+      alert('This browser does not support desktop notifications');
       return;
     }
 
@@ -131,8 +131,8 @@ const NotificationManager = ({ events }) => {
         localStorage.setItem('notificationsEnabled', 'true');
         
         // Show test notification
-        new Notification('🎉 Notifiche attivate!', {
-          body: 'Riceverai promemoria 15 e 5 minuti prima delle lezioni',
+        new Notification('🎉 Notifications enabled!', {
+          body: 'You will receive reminders 15 and 5 minutes before classes',
           icon: '/favicon.svg'
         });
       }
@@ -168,14 +168,14 @@ const NotificationManager = ({ events }) => {
   };
 
   const formatTime = (date) => {
-    return new Date(date).toLocaleTimeString('it-IT', { 
+    return new Date(date).toLocaleTimeString('en-GB', { 
       hour: '2-digit', 
       minute: '2-digit' 
     });
   };
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('it-IT', { 
+    return new Date(date).toLocaleDateString('en-GB', { 
       weekday: 'long',
       day: 'numeric',
       month: 'long'
@@ -187,19 +187,19 @@ const NotificationManager = ({ events }) => {
     const eventDate = new Date(date);
     const diff = eventDate - now;
     
-    if (diff < 0) return 'Iniziata';
+    if (diff < 0) return 'Already started';
     
     const hours = Math.floor(diff / 1000 / 60 / 60);
     const minutes = Math.floor((diff / 1000 / 60) % 60);
     
     if (hours > 24) {
       const days = Math.floor(hours / 24);
-      return `tra ${days} giorni`;
+      return `in ${days} day${days !== 1 ? 's' : ''}`;
     }
     if (hours > 0) {
-      return `tra ${hours}h ${minutes}m`;
+      return `in ${hours}h ${minutes}m`;
     }
-    return `tra ${minutes} minuti`;
+    return `in ${minutes} minute${minutes !== 1 ? 's' : ''}`;
   };
 
   return (
@@ -214,7 +214,7 @@ const NotificationManager = ({ events }) => {
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>
-          🔔 Notifiche e Promemoria
+          🔔 Notifications & Reminders
         </DialogTitle>
         <DialogContent>
           <Box sx={{ mb: 3 }}>
@@ -226,29 +226,29 @@ const NotificationManager = ({ events }) => {
                   color="primary"
                 />
               }
-              label="Abilita notifiche automatiche"
+              label="Enable automatic notifications"
             />
             <Typography variant="caption" display="block" sx={{ ml: 4, color: 'text.secondary' }}>
-              Riceverai notifiche 15 e 5 minuti prima di ogni lezione
+              You will receive notifications 15 and 5 minutes before every class
             </Typography>
           </Box>
 
           {permission === 'denied' && (
             <Alert severity="warning" sx={{ mb: 2 }}>
-              Le notifiche sono bloccate dal browser. Abilita le notifiche nelle impostazioni del browser.
+              Notifications are blocked by the browser. Enable them from your browser settings.
             </Alert>
           )}
 
           {permission === 'default' && (
             <Alert severity="info" sx={{ mb: 2 }}>
-              Clicca su "Abilita notifiche" per ricevere promemoria prima delle lezioni.
+              Click "Enable notifications" to receive reminders before classes.
             </Alert>
           )}
 
           {notificationsEnabled && nextLesson && (
             <Box sx={{ mb: 3, p: 2, bgcolor: 'primary.light', borderRadius: 2 }}>
               <Typography variant="subtitle2" gutterBottom sx={{ color: 'primary.contrastText' }}>
-                📅 Prossima Lezione
+                📅 Next Class
               </Typography>
               <Typography variant="h6" sx={{ color: 'primary.contrastText' }}>
                 {nextLesson.title}
@@ -267,13 +267,13 @@ const NotificationManager = ({ events }) => {
           <Divider sx={{ my: 2 }} />
 
           <Typography variant="subtitle1" gutterBottom>
-            ⚙️ Impostazioni Notifiche
+            ⚙️ Notification Settings
           </Typography>
           <List dense>
             <ListItem>
               <ListItemText 
-                primary="Notifica 15 minuti prima"
-                secondary="Avviso con tempo per raggiungere l'aula"
+                primary="15-minute reminder"
+                secondary="Gives you enough time to reach the classroom"
               />
               <Switch
                 checked={notify15min}
@@ -284,8 +284,8 @@ const NotificationManager = ({ events }) => {
             </ListItem>
             <ListItem>
               <ListItemText 
-                primary="Notifica 5 minuti prima"
-                secondary="Promemoria finale prima della lezione"
+                primary="5-minute reminder"
+                secondary="Final heads-up before class starts"
               />
               <Switch
                 checked={notify5min}
@@ -298,7 +298,7 @@ const NotificationManager = ({ events }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>
-            Chiudi
+            Close
           </Button>
         </DialogActions>
       </Dialog>

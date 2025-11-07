@@ -18,7 +18,7 @@ import {
   School as SchoolIcon
 } from '@mui/icons-material';
 import { format, getDay, startOfWeek, endOfWeek, isWithinInterval, differenceInMinutes } from 'date-fns';
-import { it } from 'date-fns/locale';
+import { enGB } from 'date-fns/locale';
 
 const StatisticsDashboard = ({ events }) => {
   // Calculate statistics
@@ -37,8 +37,8 @@ const StatisticsDashboard = ({ events }) => {
     }
 
     const now = new Date();
-    const weekStart = startOfWeek(now, { locale: it });
-    const weekEnd = endOfWeek(now, { locale: it });
+    const weekStart = startOfWeek(now, { locale: enGB });
+    const weekEnd = endOfWeek(now, { locale: enGB });
 
     let totalMinutes = 0;
     let weeklyMinutes = 0;
@@ -90,14 +90,14 @@ const StatisticsDashboard = ({ events }) => {
           conflicts.push({
             event1: event.title,
             event2: otherEvent.title,
-            time: format(start, 'PPP p', { locale: it })
+            time: format(start, 'PPP p', { locale: enGB })
           });
         }
       });
     });
 
     // Find busiest day
-    const dayNames = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const maxDayIndex = dayDistribution.indexOf(Math.max(...dayDistribution));
     const busiestDay = dayNames[maxDayIndex];
 
@@ -127,7 +127,7 @@ const StatisticsDashboard = ({ events }) => {
     <Box sx={{ mb: 3 }}>
       <Typography variant="h5" gutterBottom sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
         <TrendingIcon sx={{ mr: 1 }} />
-        Statistiche Calendario
+        Calendar Statistics
       </Typography>
 
       <Grid container spacing={2}>
@@ -138,7 +138,7 @@ const StatisticsDashboard = ({ events }) => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <CalendarIcon color="primary" sx={{ mr: 1 }} />
                 <Typography variant="body2" color="text.secondary">
-                  Eventi Totali
+                  Total Events
                 </Typography>
               </Box>
               <Typography variant="h4" component="div">
@@ -155,7 +155,7 @@ const StatisticsDashboard = ({ events }) => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <ScheduleIcon color="primary" sx={{ mr: 1 }} />
                 <Typography variant="body2" color="text.secondary">
-                  Ore Totali
+                  Total Hours
                 </Typography>
               </Box>
               <Typography variant="h4" component="div">
@@ -172,7 +172,7 @@ const StatisticsDashboard = ({ events }) => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <ScheduleIcon color="primary" sx={{ mr: 1 }} />
                 <Typography variant="body2" color="text.secondary">
-                  Ore Questa Settimana
+                  Hours This Week
                 </Typography>
               </Box>
               <Typography variant="h4" component="div">
@@ -189,7 +189,7 @@ const StatisticsDashboard = ({ events }) => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <WarningIcon color={stats.conflicts.length > 0 ? 'error' : 'disabled'} sx={{ mr: 1 }} />
                 <Typography variant="body2" color="text.secondary">
-                  Conflitti Orari
+                  Time Conflicts
                 </Typography>
               </Box>
               <Typography variant="h4" component="div">
@@ -203,17 +203,17 @@ const StatisticsDashboard = ({ events }) => {
         <Grid item xs={12} md={6}>
           <Paper elevation={2} sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
-              📊 Distribuzione
+              📊 Distribution
             </Typography>
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Giorno più intenso
+                Busiest Day
               </Typography>
               <Chip label={stats.busiestDay} color="primary" sx={{ fontWeight: 'bold' }} />
             </Box>
             <Box>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Fascia oraria più frequente
+                Most Frequent Time Slot
               </Typography>
               <Chip label={busiestHour} color="primary" sx={{ fontWeight: 'bold' }} />
             </Box>
@@ -225,7 +225,7 @@ const StatisticsDashboard = ({ events }) => {
           <Paper elevation={2} sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
               <SchoolIcon sx={{ mr: 1 }} />
-              Corsi per Anno
+              Courses by Year
             </Typography>
             {Object.keys(stats.coursesByYear).length > 0 ? (
               Object.entries(stats.coursesByYear)
@@ -233,8 +233,8 @@ const StatisticsDashboard = ({ events }) => {
                 .map(([year, count]) => (
                   <Box key={year} sx={{ mb: 1 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="body2">Anno {year}</Typography>
-                      <Typography variant="body2" fontWeight="bold">{count} corsi</Typography>
+                      <Typography variant="body2">Year {year}</Typography>
+                      <Typography variant="body2" fontWeight="bold">{count} courses</Typography>
                     </Box>
                     <LinearProgress 
                       variant="determinate" 
@@ -245,7 +245,7 @@ const StatisticsDashboard = ({ events }) => {
                 ))
             ) : (
               <Typography variant="body2" color="text.secondary">
-                Nessun corso disponibile
+                No courses available
               </Typography>
             )}
           </Paper>
@@ -257,7 +257,7 @@ const StatisticsDashboard = ({ events }) => {
             <Paper elevation={2} sx={{ p: 2, bgcolor: 'warning.light' }}>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', color: '#d32f2f' }}>
                 <WarningIcon color="error" sx={{ mr: 1 }} />
-                Conflitti Orari Rilevati
+                Detected Time Conflicts
               </Typography>
               <Divider sx={{ mb: 2 }} />
               {stats.conflicts.map((conflict, index) => (
@@ -272,7 +272,7 @@ const StatisticsDashboard = ({ events }) => {
               ))}
               {stats.conflicts.length > 5 && (
                 <Typography variant="caption" sx={{ color: '#e65100' }}>
-                  ... e altri {stats.conflicts.length - 5} conflitti
+                  ...and {stats.conflicts.length - 5} more conflicts
                 </Typography>
               )}
             </Paper>

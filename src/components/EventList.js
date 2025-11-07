@@ -51,7 +51,7 @@ const EventList = ({ events }) => {
               {hasConflict && (
                 <Alert severity="warning" icon={<WarningIcon />} sx={{ mb: 2 }}>
                   <Typography variant="body2" fontWeight="bold">
-                    ⚠️ Conflitto orario con:
+                    ⚠️ Schedule conflict with:
                   </Typography>
                   {conflictingEvents.map((conflictEvent, i) => (
                     <Typography key={i} variant="caption" display="block">

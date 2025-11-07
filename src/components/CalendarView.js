@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
 import { format, parse, startOfWeek, endOfWeek, getDay, addMonths, addWeeks, addDays } from 'date-fns';
-import { it } from 'date-fns/locale';
+import { enGB } from 'date-fns/locale';
 import { 
   Box, 
   Paper, 
@@ -24,7 +24,7 @@ import { formatEventTitle, createCalendarEvent } from '../utils/eventUtils';
 import { findConflicts } from '../utils/conflictUtils';
 
 const locales = {
-  'it': it
+  'en-GB': enGB
 };
 
 const localizer = dateFnsLocalizer({
@@ -59,13 +59,13 @@ const formatViewLabel = (date, view) => {
     case Views.DAY:
       return localizer.format(date, 'EEEE dd MMMM yyyy');
     case Views.WEEK: {
-      const start = startOfWeek(date, { locale: it });
-      const end = endOfWeek(date, { locale: it });
+      const start = startOfWeek(date, { locale: enGB });
+      const end = endOfWeek(date, { locale: enGB });
       return `${localizer.format(start, 'dd MMM')} – ${localizer.format(end, 'dd MMM yyyy')}`;
     }
     case Views.AGENDA: {
-      const start = startOfWeek(date, { locale: it });
-      const end = endOfWeek(date, { locale: it });
+      const start = startOfWeek(date, { locale: enGB });
+      const end = endOfWeek(date, { locale: enGB });
       return `${localizer.format(start, 'dd MMM yyyy')} – ${localizer.format(end, 'dd MMM yyyy')}`;
     }
     case Views.MONTH:
@@ -174,7 +174,7 @@ const CalendarView = ({ events }) => {
       localizer.format(start, 'MMMM dd', culture) + ' - ' +
       localizer.format(end, view === Views.MONTH ? 'MMMM dd' : 'dd', culture),
     dayHeaderFormat: (date, culture, localizer) =>
-      localizer.format(date, 'EEEE dd/MM', culture), // "Lunedì 22/10"
+      localizer.format(date, 'EEEE dd/MM', culture), // Example: "Monday 22/10"
     weekdayFormat: (date, culture, localizer) =>
       localizer.format(date, 'EEEE', culture),
     timeRangeFormat: ({ start, end }, culture, localizer) =>
@@ -252,7 +252,7 @@ const CalendarView = ({ events }) => {
             <IconButton
               size="small"
               onClick={() => handleNavigationControl('PREV')}
-              aria-label="Giorno precedente"
+              aria-label="Previous day"
             >
               <ChevronLeftIcon fontSize="small" />
             </IconButton>
@@ -270,7 +270,7 @@ const CalendarView = ({ events }) => {
             <IconButton
               size="small"
               onClick={() => handleNavigationControl('NEXT')}
-              aria-label="Giorno successivo"
+              aria-label="Next day"
             >
               <ChevronRightIcon fontSize="small" />
             </IconButton>
@@ -282,7 +282,7 @@ const CalendarView = ({ events }) => {
             onClick={() => handleNavigationControl('TODAY')}
             sx={{ alignSelf: { xs: 'stretch', sm: 'center' } }}
           >
-            Oggi
+            Today
           </Button>
         </Box>
         <ToggleButtonGroup
@@ -308,9 +308,9 @@ const CalendarView = ({ events }) => {
             }
           }}
         >
-          <ToggleButton value={Views.MONTH}>Mese</ToggleButton>
-          <ToggleButton value={Views.WEEK}>Settimana</ToggleButton>
-          <ToggleButton value={Views.DAY}>Giorno</ToggleButton>
+          <ToggleButton value={Views.MONTH}>Month</ToggleButton>
+          <ToggleButton value={Views.WEEK}>Week</ToggleButton>
+          <ToggleButton value={Views.DAY}>Day</ToggleButton>
           <ToggleButton value={Views.AGENDA}>Agenda</ToggleButton>
         </ToggleButtonGroup>
         <Box sx={calendarStyle}>
@@ -343,18 +343,18 @@ const CalendarView = ({ events }) => {
             showMultiDayTimes={true}
             components={{ toolbar: () => null }}
             messages={{
-              today: 'Oggi',
-              previous: 'Precedente',
-              next: 'Successivo',
-              month: 'Mese',
-              week: 'Settimana',
-              day: 'Giorno',
+              today: 'Today',
+              previous: 'Previous',
+              next: 'Next',
+              month: 'Month',
+              week: 'Week',
+              day: 'Day',
               agenda: 'Agenda',
-              date: 'Data',
-              time: 'Ora',
-              evento: 'Evento',
-              noEventsInRange: 'Nessun evento in questo periodo',
-              showMore: total => `+ Altri ${total}`
+              date: 'Date',
+              time: 'Time',
+              event: 'Event',
+              noEventsInRange: 'No events in this range',
+              showMore: total => `+ ${total} more`
             }}
           />
         </Box>
