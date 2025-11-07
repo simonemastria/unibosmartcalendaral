@@ -13,7 +13,7 @@ import ProgramFilter from './ProgramFilter';
 import StatisticsDashboard from './StatisticsDashboard';
 import NotificationManager from './NotificationManager';
 import { formatDistanceToNow } from 'date-fns';
-import { it } from 'date-fns/locale';
+import { enGB } from 'date-fns/locale';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -237,17 +237,17 @@ const ScheduleContainer = ({ events }) => {
           mt: { xs: 1, md: 0 }
         }}>
           {lastUpdate && (
-            <Tooltip title={`Ultimo aggiornamento: ${new Date(lastUpdate).toLocaleString('it-IT')}`}>
+            <Tooltip title={`Last update: ${new Date(lastUpdate).toLocaleString('en-GB')}`}>
               <Chip 
                 icon={<AccessTimeIcon />} 
-                label={formatDistanceToNow(lastUpdate, { addSuffix: true, locale: it })}
+                label={formatDistanceToNow(lastUpdate, { addSuffix: true, locale: enGB })}
                 size="small"
                 variant="outlined"
                 sx={{ cursor: 'help', flexShrink: 0 }}
               />
             </Tooltip>
           )}
-          <Tooltip title="Gestisci notifiche e promemoria">
+          <Tooltip title="Manage notifications and reminders">
             <span>
               <NotificationManager events={filteredEvents} />
             </span>
@@ -261,7 +261,7 @@ const ScheduleContainer = ({ events }) => {
               <IosShareIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Forza aggiornamento (invalida cache)">
+          <Tooltip title="Force refresh (clear cache)">
             <IconButton 
               onClick={handleForceRefresh}
               size="small"
